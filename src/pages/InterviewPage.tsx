@@ -60,12 +60,34 @@ const InterviewPage = () => {
       const transcriptionText = await aiService.transcribeAudio(audioBlob)
       setTranscription(transcriptionText)
       
+      // Show evaluation in process message
+      const evaluationElement = document.createElement('div')
+      evaluationElement.className = 'fixed top-4 right-4 bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded shadow-lg z-50'
+      evaluationElement.innerHTML = `
+        <h3 class="font-bold">Evaluating Response</h3>
+        <p class="text-sm">Analyzing how well the answer aligns with company culture and job requirements...</p>
+      `
+      document.body.appendChild(evaluationElement)
+      
       // Simulate AI evaluation
       const { score, feedback } = await aiService.evaluateAnswer(
         currentQuestionId,
         transcriptionText,
         currentQuestion.text
       )
+      
+      // Show score notification
+      evaluationElement.innerHTML = `
+        <h3 class="font-bold">Evaluation Complete</h3>
+        <p class="text-sm">Culture & Job Alignment Score: <span class="font-bold ${score >= 80 ? 'text-green-600' : score >= 60 ? 'text-yellow-600' : 'text-red-600'}">${score}%</span></p>
+      `
+      
+      // Remove notification after 3 seconds
+      setTimeout(() => {
+        if (document.body.contains(evaluationElement)) {
+          document.body.removeChild(evaluationElement)
+        }
+      }, 3000)
       
       // Mark the question as asked
       dispatch(markQuestionAsAsked(currentQuestionId))

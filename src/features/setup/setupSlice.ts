@@ -30,9 +30,31 @@ export const setupSlice = createSlice({
   reducers: {
     setCompanyCulture: (state, action: PayloadAction<string>) => {
       state.companyCulture = action.payload
+      // Save to localStorage for AI evaluation
+      try {
+        const setupData = localStorage.getItem('setupData') || '{}'
+        const parsedData = JSON.parse(setupData)
+        localStorage.setItem('setupData', JSON.stringify({
+          ...parsedData,
+          companyCulture: action.payload
+        }))
+      } catch (err) {
+        console.error('Error saving company culture to localStorage:', err)
+      }
     },
     setJobDescription: (state, action: PayloadAction<string>) => {
       state.jobDescription = action.payload
+      // Save to localStorage for AI evaluation
+      try {
+        const setupData = localStorage.getItem('setupData') || '{}'
+        const parsedData = JSON.parse(setupData)
+        localStorage.setItem('setupData', JSON.stringify({
+          ...parsedData,
+          jobDescription: action.payload
+        }))
+      } catch (err) {
+        console.error('Error saving job description to localStorage:', err)
+      }
     },
     setQuestionQuantity: (state, action: PayloadAction<{ difficulty: 'easy' | 'medium' | 'hard', quantity: number }>) => {
       const { difficulty, quantity } = action.payload

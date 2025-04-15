@@ -82,7 +82,9 @@ const EvaluationCard = ({ evaluation, question }: EvaluationCardProps) => {
       {evaluation.feedback && (
         <div className="border-t border-gray-200">
           <div className="p-4">
-            <h4 className="text-sm font-medium text-gray-700 mb-2">Feedback</h4>
+            <h4 className="text-sm font-medium text-gray-700 mb-2">
+              AI Feedback - Culture & Job Alignment
+            </h4>
             <p className="text-gray-600 text-sm bg-gray-50 p-3 rounded border border-gray-200">
               {evaluation.feedback}
             </p>

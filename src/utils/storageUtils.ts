@@ -43,7 +43,8 @@ export const clearInterviewData = (): void => {
     'truehire_setup',
     'truehire_questions',
     'truehire_evaluations',
-    'truehire_interview_state'
+    'truehire_interview_state',
+    'setupData' // Add backwards compatibility with other storage keys
   ]
   
   interviewKeys.forEach(key => removeFromLocalStorage(key))

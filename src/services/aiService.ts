@@ -148,12 +148,75 @@ export const aiService = {
       
       const category = questionId.split('-')[0]
       
-      // Score adjustments based on difficulty
+      // Get company culture from localStorage to evaluate alignment
+      let companyCulture = ''
+      let jobDescription = ''
+      try {
+        const setupData = localStorage.getItem('setupData')
+        if (setupData) {
+          const parsedData = JSON.parse(setupData)
+          companyCulture = parsedData.companyCulture || ''
+          jobDescription = parsedData.jobDescription || ''
+        }
+      } catch (err) {
+        console.error('Error getting setup data from localStorage:', err)
+      }
+      
+      // Calculate cultural alignment score (0-100)
+      let culturalAlignmentScore = 75 // Default middle score
+      
+      // If we have company culture data, analyze how well the answer aligns
+      if (companyCulture && transcription) {
+        // In a real implementation, this would use NLP/AI to analyze alignment
+        // For demo purposes, we'll do some basic keyword matching
+        
+        // Extract key terms from company culture (simplified)
+        const cultureKeywords = companyCulture.toLowerCase()
+          .replace(/[.,;:]/g, '')
+          .split(/\s+/)
+          .filter(word => word.length > 3) // Only consider words longer than 3 chars
+        
+        // Count matches in transcription
+        const transcriptionLower = transcription.toLowerCase()
+        let matchCount = 0
+        
+        cultureKeywords.forEach(keyword => {
+          if (transcriptionLower.includes(keyword)) {
+            matchCount++
+          }
+        })
+        
+        // Calculate match percentage (more sophisticated in real implementation)
+        const keywordCount = cultureKeywords.length
+        if (keywordCount > 0) {
+          const matchPercentage = (matchCount / keywordCount) * 100
+          
+          // Weight this as 30% of total score for cultural questions, 10% for others
+          if (category === 'cultural') {
+            culturalAlignmentScore = matchPercentage * 0.3 + 70 * 0.7 // Blend with base score
+          } else {
+            culturalAlignmentScore = matchPercentage * 0.1 + 75 * 0.9 // Smaller influence
+          }
+        }
+      }
+      
+      // Score adjustments based on difficulty and cultural alignment
       const baseScore = Math.floor(Math.random() * 31) + 65 // 65-95 base score
       const difficultyAdjustment = difficulty === 'easy' ? 5 : 
-                                 difficulty === 'medium' ? 0 : -5
+                                  difficulty === 'medium' ? 0 : -5
       
-      const score = Math.min(100, Math.max(0, baseScore + difficultyAdjustment))
+      // Combine scores - weighted by category
+      let score = 0
+      if (category === 'cultural') {
+        // Cultural questions are heavily influenced by cultural alignment
+        score = Math.round(baseScore * 0.4 + culturalAlignmentScore * 0.6 + difficultyAdjustment)
+      } else {
+        // Other questions have a smaller cultural alignment component
+        score = Math.round(baseScore * 0.8 + culturalAlignmentScore * 0.2 + difficultyAdjustment)
+      }
+      
+      // Ensure score is within bounds
+      score = Math.min(100, Math.max(0, score))
       
       // Generate feedback based on category and score
       let feedback = ''
@@ -177,10 +240,10 @@ export const aiService = {
           break
         case 'cultural':
           feedback += score >= 85 
-            ? 'showing clear alignment with company values and cultural priorities.'
+            ? `showing clear alignment with company values and cultural priorities. The response strongly aligns with the company's emphasis on ${companyCulture.split('.')[0]}.`
             : score >= 70
-              ? 'more explicitly connecting their experiences to our specific cultural elements.'
-              : 'understanding of how their background aligns with our company culture.'
+              ? `more explicitly connecting their experiences to our specific cultural elements. Could better address how they align with ${companyCulture.split('.')[0]}.`
+              : `understanding of how their background aligns with our company culture. Failed to demonstrate alignment with ${companyCulture.split('.')[0]}.`
           break
         case 'behavioral':
           feedback += score >= 85 
@@ -198,6 +261,15 @@ export const aiService = {
           break
         default:
           feedback += 'providing a more structured and relevant response.'
+      }
+      
+      // Add cultural alignment insight for all question types
+      if (category !== 'cultural') {
+        feedback += culturalAlignmentScore > 80
+          ? ' The response also shows good alignment with company culture values.'
+          : culturalAlignmentScore > 60
+            ? ' The response shows moderate alignment with company culture values.'
+            : ' The response could better demonstrate alignment with company culture values.'
       }
       
       return {

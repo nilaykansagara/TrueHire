@@ -31,12 +31,11 @@ export const transcribeAudio = createAsyncThunk(
   'interview/transcribeAudio',
   async (audioBlob: Blob, { rejectWithValue }) => {
     try {
-      // In a real app, send the audio to a transcription service
-      // For now, we'll simulate a delay and return mock text
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      // Import aiService to use the actual transcription service
+      const { aiService } = await import('../../services/aiService')
       
-      // Mock transcription result
-      return 'This is a simulated transcription of the candidate\'s answer. In a real implementation, this would be the actual transcribed text from the audio recording.'
+      // Use AI service to transcribe audio
+      return await aiService.transcribeAudio(audioBlob)
     } catch (error) {
       return rejectWithValue('Failed to transcribe audio')
     }
@@ -45,20 +44,39 @@ export const transcribeAudio = createAsyncThunk(
 
 export const evaluateAnswer = createAsyncThunk(
   'interview/evaluateAnswer',
-  async ({ questionId, transcription }: { questionId: string, transcription: string }, { rejectWithValue }) => {
+  async ({ 
+    questionId, 
+    transcription,
+    questionText
+  }: { 
+    questionId: string, 
+    transcription: string,
+    questionText?: string
+  }, { rejectWithValue, getState }) => {
     try {
-      // In a real app, send the transcription to an AI evaluation service
-      // For now, we'll simulate a delay and return a mock evaluation
-      await new Promise(resolve => setTimeout(resolve, 1500))
+      // Import aiService for evaluation
+      const { aiService } = await import('../../services/aiService')
       
-      // Mock evaluation result (percentage score between 0-100)
-      const score = Math.floor(Math.random() * 41) + 60 // Random score between 60-100
+      // Get the question text if not provided
+      let text = questionText
+      if (!text) {
+        const state = getState() as RootState
+        const question = state.questions.items.find(q => q.id === questionId)
+        text = question?.text || ''
+      }
+      
+      // Evaluate the answer using AI service
+      const { score, feedback } = await aiService.evaluateAnswer(
+        questionId,
+        transcription,
+        text
+      )
       
       return {
         questionId,
         transcription,
         score,
-        feedback: 'This is simulated feedback on the candidate\'s answer. In a real implementation, this would be AI-generated evaluation feedback.'
+        feedback
       }
     } catch (error) {
       return rejectWithValue('Failed to evaluate answer')

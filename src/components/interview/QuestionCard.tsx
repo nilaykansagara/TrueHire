@@ -60,7 +60,7 @@ const QuestionCard = ({
           {question.category.charAt(0).toUpperCase() + question.category.slice(1)}
         </span>
         {isEvaluated && score !== undefined && (
-          <span className={`ml-auto text-sm font-bold ${getScoreColor(score)}`}>
+          <span className={`ml-auto text-sm font-bold ${getScoreColor(score)}`} title="Company culture & job alignment score">
             {score}%
           </span>
         )}

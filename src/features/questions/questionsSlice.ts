@@ -28,34 +28,16 @@ export const generateQuestions = createAsyncThunk(
       const state = getState() as RootState
       const { companyCulture, jobDescription, questionQuantity, selectedCategories } = state.setup
 
-      // In a real app, this would call the AI service with API keys from environment variables
-      // For now, we'll just simulate a delay and return mock data
-      await new Promise(resolve => setTimeout(resolve, 1500))
-
-      // For demo purposes we're generating mock questions
-      // In production, this would be an API call to an AI service
-      const mockQuestions: Question[] = []
-      const difficulties: ('easy' | 'medium' | 'hard')[] = ['easy', 'medium', 'hard']
+      // Import the aiService to generate questions
+      const { aiService } = await import('../../services/aiService')
       
-      difficulties.forEach(difficulty => {
-        const count = questionQuantity[difficulty]
-        
-        selectedCategories.forEach(category => {
-          const questionsPerCategoryDifficulty = Math.ceil(count / selectedCategories.length)
-          
-          for (let i = 0; i < questionsPerCategoryDifficulty; i++) {
-            mockQuestions.push({
-              id: `${category}-${difficulty}-${i}`,
-              text: `Sample ${category} question (${difficulty} difficulty): Related to ${jobDescription.substring(0, 20)}...`,
-              category,
-              difficulty,
-              isAsked: false,
-            })
-          }
-        })
+      // Generate questions using the AI service
+      return await aiService.generateQuestions({
+        companyCulture,
+        jobDescription,
+        questionQuantity,
+        selectedCategories
       })
-
-      return mockQuestions
     } catch (error) {
       return rejectWithValue('Failed to generate questions')
     }

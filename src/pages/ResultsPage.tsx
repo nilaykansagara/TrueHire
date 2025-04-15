@@ -97,7 +97,7 @@ const ResultsPage = () => {
     <div className="max-w-7xl mx-auto">
       <div className="bg-white shadow-sm rounded-lg p-6 mb-6">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">Interview Results</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Culture & Job Alignment Results</h1>
           
           <div className="space-x-3">
             <button
@@ -138,7 +138,7 @@ const ResultsPage = () => {
                 {/* Overall score */}
                 <div className="mb-6">
                   <div className="flex justify-between items-center mb-1">
-                    <h3 className="text-sm font-medium text-gray-700">Overall Score</h3>
+                    <h3 className="text-sm font-medium text-gray-700">Culture & Job Alignment Score</h3>
                     <span className={`text-xl font-bold ${getScoreColor(stats?.overallAverage || 0)}`}>
                       {Math.round(stats?.overallAverage || 0)}%
                     </span>
